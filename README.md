@@ -1,5 +1,5 @@
 # Subnet Searcher
-![/imgs/banner.png](Banner)
+![Banner](/imgs/banner.png)
 ## Overview
 
 **Subnet Searcher** is a Python script designed to check if a list of IP addresses belongs to specified subnets. It supports reading IPs from a file or command-line arguments, and it can output results in JSON or CSV format. Additionally, it can send notification emails with the results and include geolocation information for the IPs.
