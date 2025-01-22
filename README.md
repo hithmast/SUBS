@@ -1,5 +1,5 @@
 # Subnet Searcher
-
+![/imgs/banner.png](Banner)
 ## Overview
 
 **Subnet Searcher** is a Python script designed to check if a list of IP addresses belongs to specified subnets. It supports reading IPs from a file or command-line arguments, and it can output results in JSON or CSV format. Additionally, it can send notification emails with the results and include geolocation information for the IPs.
@@ -93,6 +93,37 @@
    python subnet_searcher.py --file ips.txt --geolocation
    ```
 
+##Code Flow 
+```mermaid
+graph TD
+    A[Start] --> B{Perform Initial Checks}
+    B -->|Python Version Check| C[Check Python Version]
+    B -->|Config File Check| D[Check Config Exists]
+    C --> E{Valid Version?}
+    D --> F{Config Exists?}
+    E -->|Yes| G[Parse Subnets]
+    E -->|No| H[Exit]
+    F -->|Yes| G[Parse Subnets]
+    F -->|No| H[Exit]
+    G --> I{IPs Provided?}
+    I -->|Yes| J[Check IPs in Subnets]
+    I -->|No| H[Exit]
+    J --> K[Analyze Results]
+    K --> L{Output Format?}
+    L -->|JSON| M[Save Results to JSON]
+    L -->|CSV| N[Save Results to CSV]
+    K --> O{Send Notification?}
+    O -->|Email| P[Send Email Notification]
+    O -->|Telegram| Q[Send Telegram Notification]
+    K --> R{Include Geolocation?}
+    R -->|Yes| S[Get IP Geolocation]
+    R -->|No| T[End]
+    M --> T[End]
+    N --> T[End]
+    P --> T[End]
+    Q --> T[End]
+    S --> T[End]
+```
 ## Logging
 
 The script uses Python's `logging` module to log information, errors, and execution time. Logs are printed to the console.
