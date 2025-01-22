@@ -9,7 +9,7 @@
 - Validate IP addresses against specified subnets.
 - Read IP addresses from a file (supports CSV with a specified column).
 - Output results in JSON or CSV format.
-- Send notification emails with the results.
+- Send notification Emails,Telegram with the results.
 - Include geolocation information for IP addresses.
 - Perform initial checks for Python version and configuration file.
 - Multithreaded processing for faster execution.
@@ -45,6 +45,8 @@
    EMAIL_PASSWORD=your_email_password
    SMTP_SERVER=smtp.example.com
    SMTP_PORT=587
+   TELEGRAM_BOT_TOKEN=
+   TELEGRAM_CHAT_ID=
    ```
 
 ## Usage
@@ -60,6 +62,7 @@
 - `--output`: Output format for results (`json` or `csv`).
 - `--email`: Email address to send the results.
 - `--geolocation`: Include geolocation information for IPs.
+- `--telegram`: Send Result to Telegram
 
 ### Examples
 
@@ -87,13 +90,18 @@
    ```sh
    python subnet_searcher.py --file ips.txt --email recipient@example.com
    ```
+6. Send results via email:
+   ```sh
+   python subnet_searcher.py --file ips.txt --telegram
+   ```
 
-6. Include geolocation information:
+7. Include geolocation information:
    ```sh
    python subnet_searcher.py --file ips.txt --geolocation
    ```
 
-##Code Flow 
+
+## Code Flow 
 ```mermaid
 graph TD
     A[Start] --> B{Perform Initial Checks}
