@@ -155,7 +155,7 @@ def send_notification(results, email):
     msg['Subject'] = "Subnet Searcher Results"
     
     body = "Here are the results of your subnet search:\n\n"
-    body += "\n".join([f"{ip} is in the subnets: {is_in_subnet}" for ip, is_in_subnet in results])
+    body += "\n".join([f"{ip} in the subnets: {is_in_subnet}" for ip, is_in_subnet in results])
     
     msg.attach(MIMEText(body, 'plain'))
     
@@ -196,25 +196,45 @@ def output_results(results, output_format):
             writer.writerows(results)
         logging.info("Results saved to results.csv")
 
+def chunk_message(message, chunk_size=4096):
+    """Split a message into chunks of a specified size."""
+    return [message[i:i + chunk_size] for i in range(0, len(message), chunk_size)]
+
 def send_telegram_notification(results):
     """Send notification via Telegram."""
     bot_token = os.getenv("TELEGRAM_BOT_TOKEN")
     chat_id = os.getenv("TELEGRAM_CHAT_ID")
-    message = "Here are the results of your subnet search:\n\n"
-    message += "\n".join([f"{ip} is in the subnets: {is_in_subnet}" for ip, is_in_subnet in results])
+    
+    # Calculate statistics
+    total_ips = len(results)
+    valid_ips = sum(1 for _, is_in_subnet in results if is_in_subnet)
+    invalid_ips = total_ips - valid_ips
+    
+    stats_message = (
+        f"Total IPs checked: {total_ips}\n"
+        f"Valid IPs: {valid_ips}\n"
+        f"Invalid IPs: {invalid_ips}\n\n"
+    )
+    
+    results_message = "\n".join([f"{ip} in subnets: {is_in_subnet}" for ip, is_in_subnet in results])
+    
+    full_message = f"Here are the results of your subnet search:\n\n{stats_message}{results_message}"
     
     url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
-    payload = {
-        "chat_id": chat_id,
-        "text": message
-    }
     
     try:
-        response = requests.post(url, json=payload)
-        if response.status_code == 200:
-            logging.info("Telegram notification sent successfully.")
+        chunks = chunk_message(full_message)
+        for chunk in chunks:
+            payload = {
+                "chat_id": chat_id,
+                "text": chunk
+            }
+            response = requests.post(url, json=payload)
+            if response.status_code != 200:
+                logging.error(f"Failed to send Telegram notification: {response.text}")
+                break
         else:
-            logging.error(f"Failed to send Telegram notification: {response.text}")
+            logging.info("Telegram notification sent successfully.")
     except Exception as e:
         logging.error(f"Error sending Telegram notification: {e}")
 
@@ -258,9 +278,9 @@ def main():
     
     for ip, subnet_name in results:
         if subnet_name:
-            logging.info(f"{ip} is in the subnet: {subnet_name}")
+            logging.info(f"{ip} in the subnet: {subnet_name}")
         else:
-            logging.info(f"{ip} is not in any configured subnet")
+            logging.info(f"{ip} not in any configured subnet")
     
     analyze_results(results)
     
